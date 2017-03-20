@@ -1,0 +1,16 @@
+{
+  "name": "datetimepicker",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel src/js/datetimepicker.js -o ./output/datetimepicker.js -s && cp src/css/*.css ./output/"
+  },
+  "keywords": [],
+  "author": "otsukahirohisa",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.24.0",
+    "babel-preset-es2015": "^6.24.0"
+  }
+}
