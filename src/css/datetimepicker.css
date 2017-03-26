@@ -1,0 +1,17 @@
+
+.dropdown-menu {
+  width: 350px;
+  height: 160px;
+  position: absolute;
+  background-color: beige;
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, .175);
+  margin: 5px 0 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-clip: padding-box;
+}
+
+.day-of-weeks {
+  width: 14.28%;
+  margin-right: 2px;
+}
