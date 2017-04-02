@@ -1,7 +1,7 @@
 
 .dropdown-menu {
-  width: 350px;
-  height: 160px;
+  width: 300px;
+  height: auto;
   position: absolute;
   background-color: beige;
   box-shadow: 6px 6px 12px rgba(0, 0, 0, .175);
@@ -11,7 +11,54 @@
   background-clip: padding-box;
 }
 
+.calendar-table {
+  width: 300px;
+  table-layout:fixed;
+}
+
+.select-month-area {
+  display: flex;
+}
+
+.prev {
+  padding: 0 5px 0 5px;
+  width: 20px;
+  margin: 5px;
+}
+
+.prev:hover {
+  background-color: #d3d3d3;
+  cursor: pointer;
+}
+
+.month {
+  flex: 1;
+  text-align: center;
+  margin: 5px;
+}
+
+.next {
+  padding: 0 5px 0 5px;
+  width: 20px;
+  margin: 5px;
+}
+
+.next:hover {
+  background-color: #d3d3d3;
+  cursor: pointer;
+}
+
 .day-of-weeks {
-  width: 14.28%;
   margin-right: 2px;
+  text-align: center;
+}
+
+.day {
+  margin-right: 2px;
+  text-align: center;
+}
+
+.day:hover {
+  background-color: #d3d3d3;
+  cursor: pointer;
 }

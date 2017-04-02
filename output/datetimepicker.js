@@ -15,7 +15,8 @@ var datetimepicker = function datetimepicker(element) {
       this._element = element;
       this._calendarRootElm = null;
       this._isDisplayed = false;
-
+      this._selectedDate = new Date();
+      this._locale = "en-US";
       // Setup
       this._setListeners();
     }
@@ -27,9 +28,12 @@ var datetimepicker = function datetimepicker(element) {
       var _this = this;
 
       this._element.addEventListener('click', function (e) {
+        console.log("element clicked");
         if (_this._isDisplayed === false) {
+          console.log("will call show");
           _this._show();
         } else {
+          console.log("will call hide");
           _this._hide();
         }
         e.stopPropagation(); //TODO: Check more
@@ -37,7 +41,9 @@ var datetimepicker = function datetimepicker(element) {
 
       //TODO: Check more
       document.addEventListener('click', function (e) {
+        console.log("document clicked");
         if (e.currentTarget !== _this._element && _this._isDisplayed) {
+          console.log("will call hide");
           _this._hide();
         }
       });
@@ -55,28 +61,28 @@ var datetimepicker = function datetimepicker(element) {
       this._isDisplayed = false;
     };
 
+    DateTimePicker.prototype._update = function _update() {
+      this._element.removeChild(this._calendarRootElm);
+      this._calendarRootElm = this._getWidgetFragment();
+      this._element.appendChild(this._calendarRootElm);
+    };
+
     DateTimePicker.prototype._getWidgetFragment = function _getWidgetFragment() {
       var calendarRootElm = document.createElement('div');
       calendarRootElm.classList.toggle('dropdown-menu');
-      calendarRootElm.appendChild(this._getHeaderFragment());
+      calendarRootElm.appendChild(this._getMonthSelectorElm());
+      var table = document.createElement('table');
+      table.classList.toggle('calendar-table');
+      table.appendChild(this._getCalenderHeaderElm());
+      table.appendChild(this._getCalendarBodyElm());
+      calendarRootElm.appendChild(table);
       return calendarRootElm;
     };
 
     //TODO:
 
 
-    DateTimePicker.prototype._getHeaderFragment = function _getHeaderFragment() {
-      // Select Month header
-      var prevTh = document.createElement('th');
-      prevTh.appendChild(document.createTextNode("<"));
-      var monthTh = document.createElement('th');
-      monthTh.appendChild(document.createTextNode("March 2017"));
-      var nextTh = document.createElement('th');
-      nextTh.appendChild(document.createTextNode(">"));
-      var selectMonthTr = document.createElement('tr');
-      selectMonthTr.appendChild(prevTh);
-      selectMonthTr.appendChild(monthTh);
-      selectMonthTr.appendChild(nextTh);
+    DateTimePicker.prototype._getCalenderHeaderElm = function _getCalenderHeaderElm() {
       // Day of weeks header
       var dayOfWeeksTr = document.createElement('tr');
       for (var _iterator = DAY_OF_WEEKS, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
@@ -100,17 +106,88 @@ var datetimepicker = function datetimepicker(element) {
       }
       // thead
       var thead = document.createElement('thead');
-      thead.appendChild(selectMonthTr);
+      //thead.appendChild(this._getMonthSelectorElm());
       thead.appendChild(dayOfWeeksTr);
-
-      // table
-      var table = document.createElement('table');
-      table.appendChild(thead);
 
       // header fragment
       var headerFragment = document.createDocumentFragment();
-      headerFragment.appendChild(table);
+      headerFragment.appendChild(thead);
       return headerFragment;
+    };
+
+    DateTimePicker.prototype._getMonthSelectorElm = function _getMonthSelectorElm() {
+      var _this2 = this;
+
+      // Previous month
+      var prev = document.createElement('span');
+      prev.classList.toggle('prev');
+      prev.addEventListener('click', function (e) {
+        _this2._selectedDate = new Date(_this2._selectedDate.getFullYear(), _this2._selectedDate.getMonth() - 1, _this2._selectedDate.getDate());
+        _this2._update();
+        e.stopPropagation();
+      });
+      prev.appendChild(document.createTextNode("<"));
+
+      // This month
+      var month = document.createElement('span');
+      month.classList.toggle('month');
+      month.appendChild(document.createTextNode(new Intl.DateTimeFormat(this._locale, { month: 'long', year: 'numeric' }).format(this._selectedDate)));
+
+      // Next month
+      var next = document.createElement('span');
+      next.classList.toggle('next');
+      next.addEventListener('click', function (e) {
+        _this2._selectedDate = new Date(_this2._selectedDate.getFullYear(), _this2._selectedDate.getMonth() + 1, _this2._selectedDate.getDate());
+        _this2._update();
+        e.stopPropagation();
+      });
+      next.appendChild(document.createTextNode(">"));
+
+      // Block
+      var selectMonthTr = document.createElement('div');
+      selectMonthTr.classList.toggle('select-month-area');
+      selectMonthTr.appendChild(prev);
+      selectMonthTr.appendChild(month);
+      selectMonthTr.appendChild(next);
+      return selectMonthTr;
+    };
+
+    DateTimePicker.prototype._getCalendarBodyElm = function _getCalendarBodyElm() {
+      var datesArray = this._getCalendarDatesOf(this._selectedDate);
+      var calendarBody = document.createElement('tbody');
+      for (var i = 0; i < datesArray.length / 7; i++) {
+        var weekTr = document.createElement('tr');
+        for (var j = 1; j <= 7 && i * 7 + j < datesArray.length; j++) {
+          var weekTd = document.createElement('td');
+          weekTd.classList.toggle('day');
+          weekTd.appendChild(document.createTextNode(datesArray[i * 7 + j]));
+          weekTr.appendChild(weekTd);
+        }
+        calendarBody.appendChild(weekTr);
+      }
+      return calendarBody;
+    };
+
+    // Date utils
+
+
+    DateTimePicker.prototype._getCalendarDatesOf = function _getCalendarDatesOf(targetDate) {
+      var dayOfFirst = new Date(targetDate.getFullYear(), targetDate.getMonth()).getDay();
+      var lastDateOfThisMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0).getDate();
+      var n = dayOfFirst + lastDateOfThisMonth > 35 ? 42 : 35;
+      var arr = new Array(n);
+      for (var i = 1; i <= n; i++) {
+        if (i <= dayOfFirst) {
+          // last month
+          arr[i] = "";
+        } else if (i > dayOfFirst + lastDateOfThisMonth) {
+          // next month
+          arr[i] = "";
+        } else {
+          arr[i] = i - dayOfFirst;
+        }
+      }
+      return arr;
     };
 
     return DateTimePicker;
