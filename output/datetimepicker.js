@@ -4,6 +4,7 @@ var datetimepicker = function datetimepicker(element) {
 
   // Constants
   var DAY_OF_WEEKS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var DATE = Symbol(); // KEY to bind Date object to date element
 
   // Class Definition
 
@@ -106,7 +107,6 @@ var datetimepicker = function datetimepicker(element) {
       }
       // thead
       var thead = document.createElement('thead');
-      //thead.appendChild(this._getMonthSelectorElm());
       thead.appendChild(dayOfWeeksTr);
 
       // header fragment
@@ -153,6 +153,8 @@ var datetimepicker = function datetimepicker(element) {
     };
 
     DateTimePicker.prototype._getCalendarBodyElm = function _getCalendarBodyElm() {
+      var _this3 = this;
+
       var datesArray = this._getCalendarDatesOf(this._selectedDate);
       var calendarBody = document.createElement('tbody');
       for (var i = 0; i < datesArray.length / 7; i++) {
@@ -160,6 +162,16 @@ var datetimepicker = function datetimepicker(element) {
         for (var j = 1; j <= 7 && i * 7 + j < datesArray.length; j++) {
           var weekTd = document.createElement('td');
           weekTd.classList.toggle('day');
+          weekTd[DATE] = new Date(this._selectedDate.getFullYear(), this._selectedDate.getMonth(), datesArray[i * 7 + j]);
+          weekTd.addEventListener('click', function (e) {
+            var input = _this3._element.getElementsByTagName('input');
+            if (input.length != 0) {
+              input[0].value = e.currentTarget[DATE];
+            } else {
+              console.error("Could not find any input element under the specified element to picker.");
+            }
+            e.stopPropagation();
+          });
           weekTd.appendChild(document.createTextNode(datesArray[i * 7 + j]));
           weekTr.appendChild(weekTd);
         }

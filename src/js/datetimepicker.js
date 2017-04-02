@@ -5,6 +5,7 @@ const datetimepicker = ((element) => {
   const DAY_OF_WEEKS = [
     "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
   ];
+  const DATE = Symbol(); // KEY to bind Date object to date element
 
   // Class Definition
   class DateTimePicker {
@@ -136,6 +137,20 @@ const datetimepicker = ((element) => {
         for (let j = 1; j <= 7 && i*7+j < datesArray.length; j++) {
           let weekTd = document.createElement('td');
           weekTd.classList.toggle('day');
+          weekTd[DATE] = new Date(
+            this._selectedDate.getFullYear(),
+            this._selectedDate.getMonth(),
+            datesArray[i*7+j]
+          );
+          weekTd.addEventListener('click', e => {
+            let input = this._element.getElementsByTagName('input');
+            if (input.length != 0) {
+              input[0].value = e.currentTarget[DATE];
+            } else {
+              console.error("Could not find any input element under the specified element to picker.");
+            }
+            e.stopPropagation();
+          });
           weekTd.appendChild(document.createTextNode(datesArray[i*7+j]));
           weekTr.appendChild(weekTd);
         }
