@@ -13,6 +13,7 @@ const datetimepicker = ((element) => {
       // Private members
       this._element = element;
       this._calendarRootElm = null;
+      this._calendarTimeSelectorRootElm = null;
       this._isDisplayed = false;
       this._selectedDate = new Date();
       this._locale = "en-US";
@@ -62,6 +63,13 @@ const datetimepicker = ((element) => {
       this._element.appendChild(this._calendarRootElm);
     }
 
+    _showTimeSelector() {
+      this._element.removeChild(this._calendarRootElm);
+      this._calendarRootElm = this._getTimeSelectorView();
+      this._element.appendChild(this._calendarRootElm);
+    }
+
+    // top level of calendar view
     _getWidgetFragment() {
       let calendarRootElm = document.createElement('div');
       calendarRootElm.classList.toggle('dropdown-menu');
@@ -71,6 +79,7 @@ const datetimepicker = ((element) => {
       table.appendChild(this._getCalenderHeaderElm());
       table.appendChild(this._getCalendarBodyElm());
       calendarRootElm.appendChild(table);
+      calendarRootElm.appendChild(this._getTimeSelectButton());
       return calendarRootElm;
     }
 
@@ -159,6 +168,41 @@ const datetimepicker = ((element) => {
       return calendarBody;
     }
 
+    _getTimeSelectButton() {
+      let btn = document.createElement('button');
+      btn.appendChild(document.createTextNode("Select Time"));
+      btn.classList.toggle('time-select-btn');
+      btn.addEventListener('click', e => {
+        this._showTimeSelector();
+        e.stopPropagation();
+      });
+      return btn;
+    }
+
+    // top level of time selector view
+    _getTimeSelectorView() {
+      let calendarRootElm = document.createElement('div');
+      calendarRootElm.classList.toggle('dropdown-menu');
+      calendarRootElm.appendChild(this._getDateSelectButton());
+      return calendarRootElm;
+    }
+
+    _getDateSelectButton() {
+      let btn = document.createElement('button');
+      btn.appendChild(document.createTextNode("Select Date"));
+      btn.classList.toggle('date-select-btn');
+      btn.addEventListener('click', e => {
+        this._update();
+        e.stopPropagation();
+      });
+      return btn;
+    }
+
+    _getTimeSelectorViewMain() {
+      
+    }
+
+    //===
     // Date utils
     _getCalendarDatesOf(targetDate) {
       var dayOfFirst = (new Date(targetDate.getFullYear(), targetDate.getMonth())).getDay();

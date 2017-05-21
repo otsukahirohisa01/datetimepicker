@@ -15,6 +15,7 @@ var datetimepicker = function datetimepicker(element) {
       // Private members
       this._element = element;
       this._calendarRootElm = null;
+      this._calendarTimeSelectorRootElm = null;
       this._isDisplayed = false;
       this._selectedDate = new Date();
       this._locale = "en-US";
@@ -68,6 +69,15 @@ var datetimepicker = function datetimepicker(element) {
       this._element.appendChild(this._calendarRootElm);
     };
 
+    DateTimePicker.prototype._showTimeSelector = function _showTimeSelector() {
+      this._element.removeChild(this._calendarRootElm);
+      this._calendarRootElm = this._getTimeSelectorView();
+      this._element.appendChild(this._calendarRootElm);
+    };
+
+    // top level of calendar view
+
+
     DateTimePicker.prototype._getWidgetFragment = function _getWidgetFragment() {
       var calendarRootElm = document.createElement('div');
       calendarRootElm.classList.toggle('dropdown-menu');
@@ -77,6 +87,7 @@ var datetimepicker = function datetimepicker(element) {
       table.appendChild(this._getCalenderHeaderElm());
       table.appendChild(this._getCalendarBodyElm());
       calendarRootElm.appendChild(table);
+      calendarRootElm.appendChild(this._getTimeSelectButton());
       return calendarRootElm;
     };
 
@@ -180,6 +191,45 @@ var datetimepicker = function datetimepicker(element) {
       return calendarBody;
     };
 
+    DateTimePicker.prototype._getTimeSelectButton = function _getTimeSelectButton() {
+      var _this4 = this;
+
+      var btn = document.createElement('button');
+      btn.appendChild(document.createTextNode("Select Time"));
+      btn.classList.toggle('time-select-btn');
+      btn.addEventListener('click', function (e) {
+        _this4._showTimeSelector();
+        e.stopPropagation();
+      });
+      return btn;
+    };
+
+    // top level of time selector view
+
+
+    DateTimePicker.prototype._getTimeSelectorView = function _getTimeSelectorView() {
+      var calendarRootElm = document.createElement('div');
+      calendarRootElm.classList.toggle('dropdown-menu');
+      calendarRootElm.appendChild(this._getDateSelectButton());
+      return calendarRootElm;
+    };
+
+    DateTimePicker.prototype._getDateSelectButton = function _getDateSelectButton() {
+      var _this5 = this;
+
+      var btn = document.createElement('button');
+      btn.appendChild(document.createTextNode("Select Date"));
+      btn.classList.toggle('date-select-btn');
+      btn.addEventListener('click', function (e) {
+        _this5._update();
+        e.stopPropagation();
+      });
+      return btn;
+    };
+
+    DateTimePicker.prototype._getTimeSelectorViewMain = function _getTimeSelectorViewMain() {};
+
+    //===
     // Date utils
 
 
