@@ -227,6 +227,7 @@ const datetimepicker = ((element) => {
         return tr;
       }
 
+      // Row to increament hour and minute
       let tr1 = makeRow({str_hour: '↑', str_sep: " ", str_min: "↑", onclick_hour: e => {
         let hour = Number(document.getElementById('id-time-select-hour').textContent)
         hour = (hour+1)%24;
@@ -253,8 +254,10 @@ const datetimepicker = ((element) => {
         e.stopPropagation();
       }});
 
+      // Row to show hour and minute
       let tr2 = makeRow({str_hour: ("00" + this._selectedDate.getHours()).substr(-2), str_sep: ":", str_min: ("00" + this._selectedDate.getMinutes()).substr(-2), id_hour: 'id-time-select-hour', id_min: 'id-time-select-min'});
       
+      // Row to show descrement hour and minute
       let tr3 = makeRow({str_hour: '↓', str_sep: " ", str_min: "↓", onclick_hour: e => {
         let hour = Number(document.getElementById('id-time-select-hour').textContent)
         hour = hour-1 < 0 ? 23 : hour-1;
