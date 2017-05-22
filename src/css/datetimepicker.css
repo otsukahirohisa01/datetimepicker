@@ -86,3 +86,21 @@
   background-color: #d3d3d3;
   cursor: pointer;
 }
+
+.time-select-td {
+  padding: 10px;
+  text-align: center;
+  width: 20px;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;  
+}
+
+.time-select-td:hover {
+  background-color: #d3d3d3;
+  cursor: pointer;
+}
+
+.time-select-table {
+  margin: 0 auto;
+}

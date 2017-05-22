@@ -133,7 +133,7 @@ var datetimepicker = function datetimepicker(element) {
       var prev = document.createElement('span');
       prev.classList.toggle('prev');
       prev.addEventListener('click', function (e) {
-        _this2._selectedDate = new Date(_this2._selectedDate.getFullYear(), _this2._selectedDate.getMonth() - 1, _this2._selectedDate.getDate());
+        _this2._selectedDate = new Date(_this2._selectedDate.getFullYear(), _this2._selectedDate.getMonth() - 1, _this2._selectedDate.getDate(), _this2._selectedDate.getHours(), _this2._selectedDate.getMinutes());
         _this2._update();
         e.stopPropagation();
       });
@@ -148,7 +148,7 @@ var datetimepicker = function datetimepicker(element) {
       var next = document.createElement('span');
       next.classList.toggle('next');
       next.addEventListener('click', function (e) {
-        _this2._selectedDate = new Date(_this2._selectedDate.getFullYear(), _this2._selectedDate.getMonth() + 1, _this2._selectedDate.getDate());
+        _this2._selectedDate = new Date(_this2._selectedDate.getFullYear(), _this2._selectedDate.getMonth() + 1, _this2._selectedDate.getDate(), _this2._selectedDate.getHours(), _this2._selectedDate.getMinutes());
         _this2._update();
         e.stopPropagation();
       });
@@ -177,7 +177,8 @@ var datetimepicker = function datetimepicker(element) {
           weekTd.addEventListener('click', function (e) {
             var input = _this3._element.getElementsByTagName('input');
             if (input.length != 0) {
-              input[0].value = e.currentTarget[DATE];
+              _this3._selectedDate.setDate(e.currentTarget[DATE].getDate());
+              input[0].value = _this3._selectedDate;
             } else {
               console.error("Could not find any input element under the specified element to picker.");
             }
@@ -211,6 +212,7 @@ var datetimepicker = function datetimepicker(element) {
       var calendarRootElm = document.createElement('div');
       calendarRootElm.classList.toggle('dropdown-menu');
       calendarRootElm.appendChild(this._getDateSelectButton());
+      calendarRootElm.appendChild(this._getTimeSelectorViewMain());
       return calendarRootElm;
     };
 
@@ -227,7 +229,103 @@ var datetimepicker = function datetimepicker(element) {
       return btn;
     };
 
-    DateTimePicker.prototype._getTimeSelectorViewMain = function _getTimeSelectorViewMain() {};
+    DateTimePicker.prototype._getTimeSelectorViewMain = function _getTimeSelectorViewMain() {
+      var _this6 = this;
+
+      var table = document.createElement('table');
+      var makeRow = function makeRow(obj) {
+        //Hour
+        var td_hour = document.createElement('td');
+        td_hour.appendChild(document.createTextNode(obj['str_hour']));
+        if (obj['id_hour']) {
+          td_hour.id = obj['id_hour'];
+        }
+        td_hour.classList.toggle('time-select-td');
+        if (obj['onclick_hour']) {
+          td_hour.addEventListener('click', obj['onclick_hour']);
+        }
+        //Separator
+        var td_sep = document.createElement('td');
+        td_sep.appendChild(document.createTextNode(obj['str_sep']));
+        td_sep.classList.toggle('time-select-td');
+        var td_min = document.createElement('td');
+        //Minute
+        td_min.appendChild(document.createTextNode(obj['str_min']));
+        if (obj['id_min']) {
+          td_min.id = obj['id_min'];
+        }
+        td_min.classList.toggle('time-select-td');
+        if (obj['onclick_min']) {
+          td_min.addEventListener('click', obj['onclick_min']);
+        }
+        //Append ALL
+        var tr = document.createElement('tr');
+        tr.appendChild(td_hour);
+        tr.appendChild(td_sep);
+        tr.appendChild(td_min);
+        return tr;
+      };
+
+      var tr1 = makeRow({ str_hour: '↑', str_sep: " ", str_min: "↑", onclick_hour: function onclick_hour(e) {
+          var hour = Number(document.getElementById('id-time-select-hour').textContent);
+          hour = (hour + 1) % 24;
+          document.getElementById('id-time-select-hour').textContent = ("00" + hour).substr(-2);
+          var input = _this6._element.getElementsByTagName('input');
+          if (input.length != 0) {
+            _this6._selectedDate.setHours(hour);
+            input[0].value = _this6._selectedDate;
+          } else {
+            console.error("Could not find any input element under the specified element to picker.");
+          }
+          e.stopPropagation();
+        }, onclick_min: function onclick_min(e) {
+          var min = Number(document.getElementById('id-time-select-min').textContent);
+          min = (min + 1) % 60;
+          document.getElementById('id-time-select-min').textContent = ("00" + min).substr(-2);
+          var input = _this6._element.getElementsByTagName('input');
+          if (input.length != 0) {
+            _this6._selectedDate.setMinutes(min);
+            input[0].value = _this6._selectedDate;
+          } else {
+            console.error("Could not find any input element under the specified element to picker.");
+          }
+          e.stopPropagation();
+        } });
+
+      var tr2 = makeRow({ str_hour: ("00" + this._selectedDate.getHours()).substr(-2), str_sep: ":", str_min: ("00" + this._selectedDate.getMinutes()).substr(-2), id_hour: 'id-time-select-hour', id_min: 'id-time-select-min' });
+
+      var tr3 = makeRow({ str_hour: '↓', str_sep: " ", str_min: "↓", onclick_hour: function onclick_hour(e) {
+          var hour = Number(document.getElementById('id-time-select-hour').textContent);
+          hour = hour - 1 < 0 ? 23 : hour - 1;
+          document.getElementById('id-time-select-hour').textContent = ("00" + hour).substr(-2);
+          var input = _this6._element.getElementsByTagName('input');
+          if (input.length != 0) {
+            _this6._selectedDate.setHours(hour);
+            input[0].value = _this6._selectedDate;
+          } else {
+            console.error("Could not find any input element under the specified element to picker.");
+          }
+          e.stopPropagation();
+        }, onclick_min: function onclick_min(e) {
+          var min = Number(document.getElementById('id-time-select-min').textContent);
+          min = min - 1 < 0 ? 59 : min - 1;
+          document.getElementById('id-time-select-min').textContent = ("00" + min).substr(-2);
+          var input = _this6._element.getElementsByTagName('input');
+          if (input.length != 0) {
+            _this6._selectedDate.setMinutes(min);
+            input[0].value = _this6._selectedDate;
+          } else {
+            console.error("Could not find any input element under the specified element to picker.");
+          }
+          e.stopPropagation();
+        } });
+
+      table.appendChild(tr1);
+      table.appendChild(tr2);
+      table.appendChild(tr3);
+      table.classList.toggle('time-select-table');
+      return table;
+    };
 
     //===
     // Date utils
