@@ -4,6 +4,7 @@ var datetimepicker = function datetimepicker(element) {
 
   // Constants
   var DAY_OF_WEEKS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   var DATE = Symbol(); // KEY to bind Date object to date element
 
   // Class Definition
@@ -30,12 +31,9 @@ var datetimepicker = function datetimepicker(element) {
       var _this = this;
 
       this._element.addEventListener('click', function (e) {
-        console.log("element clicked");
         if (_this._isDisplayed === false) {
-          console.log("will call show");
           _this._show();
         } else {
-          console.log("will call hide");
           _this._hide();
         }
         e.stopPropagation(); //TODO: Check more
@@ -43,9 +41,7 @@ var datetimepicker = function datetimepicker(element) {
 
       //TODO: Check more
       document.addEventListener('click', function (e) {
-        console.log("document clicked");
         if (e.currentTarget !== _this._element && _this._isDisplayed) {
-          console.log("will call hide");
           _this._hide();
         }
       });
@@ -72,6 +68,12 @@ var datetimepicker = function datetimepicker(element) {
     DateTimePicker.prototype._showTimeSelector = function _showTimeSelector() {
       this._element.removeChild(this._calendarRootElm);
       this._calendarRootElm = this._getTimeSelectorView();
+      this._element.appendChild(this._calendarRootElm);
+    };
+
+    DateTimePicker.prototype._showMonthSelector = function _showMonthSelector() {
+      this._element.removeChild(this._calendarRootElm);
+      this._calendarRootElm = this._getMonthSelectorView();
       this._element.appendChild(this._calendarRootElm);
     };
 
@@ -141,7 +143,12 @@ var datetimepicker = function datetimepicker(element) {
 
       // This month
       var month = document.createElement('span');
+      month.id = "id-select-month";
       month.classList.toggle('month');
+      month.addEventListener('click', function (e) {
+        _this2._showMonthSelector();
+        e.stopPropagation();
+      });
       month.appendChild(document.createTextNode(new Intl.DateTimeFormat(this._locale, { month: 'long', year: 'numeric' }).format(this._selectedDate)));
 
       // Next month
@@ -266,6 +273,7 @@ var datetimepicker = function datetimepicker(element) {
         return tr;
       };
 
+      // Row to increament hour and minute
       var tr1 = makeRow({ str_hour: '↑', str_sep: " ", str_min: "↑", onclick_hour: function onclick_hour(e) {
           var hour = Number(document.getElementById('id-time-select-hour').textContent);
           hour = (hour + 1) % 24;
@@ -292,8 +300,10 @@ var datetimepicker = function datetimepicker(element) {
           e.stopPropagation();
         } });
 
+      // Row to show hour and minute
       var tr2 = makeRow({ str_hour: ("00" + this._selectedDate.getHours()).substr(-2), str_sep: ":", str_min: ("00" + this._selectedDate.getMinutes()).substr(-2), id_hour: 'id-time-select-hour', id_min: 'id-time-select-min' });
 
+      // Row to show descrement hour and minute
       var tr3 = makeRow({ str_hour: '↓', str_sep: " ", str_min: "↓", onclick_hour: function onclick_hour(e) {
           var hour = Number(document.getElementById('id-time-select-hour').textContent);
           hour = hour - 1 < 0 ? 23 : hour - 1;
@@ -325,6 +335,46 @@ var datetimepicker = function datetimepicker(element) {
       table.appendChild(tr3);
       table.classList.toggle('time-select-table');
       return table;
+    };
+
+    // top level of month selector view
+
+
+    DateTimePicker.prototype._getMonthSelectorView = function _getMonthSelectorView() {
+      var monthSelectorRootElm = document.createElement('div');
+      monthSelectorRootElm.classList.toggle('dropdown-menu');
+      monthSelectorRootElm.appendChild(this._getMonthSelectorViewMain());
+      //monthSelectorRootElm.appendChild(this._getTimeSelectorViewMain());
+      return monthSelectorRootElm;
+    };
+
+    DateTimePicker.prototype._getMonthSelectorViewMain = function _getMonthSelectorViewMain() {
+      var _this7 = this;
+
+      var tbodyMonth = document.createElement('tbody');
+      var m = 0;
+      for (var i = 0; i < 3; i++) {
+        var trMonth = document.createElement('tr');
+        for (var j = 0; j < 4; j++) {
+          var tdMonth = document.createElement('td');
+          tdMonth.classList.toggle('month-select-td');
+          tdMonth.appendChild(document.createTextNode(MONTH[m]));
+          tdMonth.setAttribute('data-month', m);
+          tdMonth.addEventListener('click', function (e) {
+            _this7._selectedDate.setMonth(Number(e.currentTarget.getAttribute('data-month')));
+            _this7._element.getElementsByTagName('input')[0].value = _this7._selectedDate;
+            _this7._update();
+            e.stopPropagation();
+          });
+          trMonth.appendChild(tdMonth);
+          m++;
+        }
+        tbodyMonth.appendChild(trMonth);
+      }
+      var tableMonth = document.createElement('table');
+      tableMonth.classList.toggle('month-select-table');
+      tableMonth.appendChild(tbodyMonth);
+      return tableMonth;
     };
 
     //===

@@ -5,6 +5,9 @@ const datetimepicker = ((element) => {
   const DAY_OF_WEEKS = [
     "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
   ];
+  const MONTH = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
   const DATE = Symbol(); // KEY to bind Date object to date element
 
   // Class Definition
@@ -24,12 +27,9 @@ const datetimepicker = ((element) => {
     // Private Functions
     _setListeners() {
       this._element.addEventListener('click', e => {
-        console.log("element clicked");
         if (this._isDisplayed === false) {
-          console.log("will call show");
           this._show();
         } else {
-          console.log("will call hide");
           this._hide();
         }
         e.stopPropagation();  //TODO: Check more
@@ -37,9 +37,7 @@ const datetimepicker = ((element) => {
 
       //TODO: Check more
       document.addEventListener('click', e => {
-        console.log("document clicked");
         if (e.currentTarget !== this._element && this._isDisplayed) {
-          console.log("will call hide");
           this._hide();
         }
       });
@@ -66,6 +64,12 @@ const datetimepicker = ((element) => {
     _showTimeSelector() {
       this._element.removeChild(this._calendarRootElm);
       this._calendarRootElm = this._getTimeSelectorView();
+      this._element.appendChild(this._calendarRootElm);
+    }
+
+    _showMonthSelector() {
+      this._element.removeChild(this._calendarRootElm);
+      this._calendarRootElm = this._getMonthSelectorView();
       this._element.appendChild(this._calendarRootElm);
     }
 
@@ -116,7 +120,12 @@ const datetimepicker = ((element) => {
 
       // This month
       let month = document.createElement('span');
+      month.id = "id-select-month";
       month.classList.toggle('month');
+      month.addEventListener('click', e => {
+        this._showMonthSelector();
+        e.stopPropagation();
+      });
       month.appendChild(document.createTextNode(new Intl.DateTimeFormat(this._locale, {month:'long', year: 'numeric'}).format(this._selectedDate)));
       
       // Next month
@@ -289,6 +298,42 @@ const datetimepicker = ((element) => {
       table.appendChild(tr3);
       table.classList.toggle('time-select-table');
       return table;
+    }
+
+
+    // top level of month selector view
+    _getMonthSelectorView() {
+      let monthSelectorRootElm = document.createElement('div');
+      monthSelectorRootElm.classList.toggle('dropdown-menu');
+      monthSelectorRootElm.appendChild(this._getMonthSelectorViewMain());
+      return monthSelectorRootElm;
+    }
+
+    _getMonthSelectorViewMain() {
+      let tbodyMonth = document.createElement('tbody');
+      let m = 0
+      for (let i = 0; i < 3; i++) {
+        let trMonth = document.createElement('tr');
+        for (let j = 0; j < 4; j++) {
+          let tdMonth = document.createElement('td');
+          tdMonth.classList.toggle('month-select-td');
+          tdMonth.appendChild(document.createTextNode(MONTH[m]));
+          tdMonth.setAttribute('data-month', m);
+          tdMonth.addEventListener('click', e => {
+            this._selectedDate.setMonth(Number(e.currentTarget.getAttribute('data-month')));
+            this._element.getElementsByTagName('input')[0].value = this._selectedDate;
+            this._update();
+            e.stopPropagation();
+          });
+          trMonth.appendChild(tdMonth);
+          m++;
+        }
+        tbodyMonth.appendChild(trMonth);
+      }
+      let tableMonth = document.createElement('table');
+      tableMonth.classList.toggle('month-select-table');
+      tableMonth.appendChild(tbodyMonth);
+      return tableMonth;
     }
 
     //===
